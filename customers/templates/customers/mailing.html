@@ -1,0 +1,291 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Создание рассылки{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="mailing-create-container">
+    <div class="mailing-form-card">
+        <div class="form-header">
+            <h1><i class="fas fa-envelope-open-text"></i> Новая рассылка</h1>
+            <p>Заполните данные для создания новой рассылки</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="styled-mailing-form">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.first_mailing.id_for_label }}">
+                        <i class="far fa-calendar-alt"></i> {{ form.first_mailing.label }}
+                    </label>
+                    {{ form.first_mailing }}
+                    {% if form.first_mailing.errors %}
+                    <div class="error-message">{{ form.first_mailing.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.end_mailing.id_for_label }}">
+                        <i class="far fa-calendar-times"></i> {{ form.end_mailing.label }}
+                    </label>
+                    {{ form.end_mailing }}
+                    {% if form.end_mailing.errors %}
+                    <div class="error-message">{{ form.end_mailing.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">
+                    <i class="fas fa-info-circle"></i> {{ form.status.label }}
+                </label>
+                <div class="select-wrapper">
+                    {{ form.status }}
+                </div>
+                {% if form.status.errors %}
+                <div class="error-message">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.letter.id_for_label }}">
+                    <i class="fas fa-envelope"></i> {{ form.letter.label }}
+                </label>
+                <div class="select-wrapper">
+                    {{ form.letter }}
+                </div>
+                {% if form.letter.errors %}
+                <div class="error-message">{{ form.letter.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.recipients.id_for_label }}">
+                    <i class="fas fa-users"></i> {{ form.recipients.label }}
+                </label>
+                {{ form.recipients }}
+                {% if form.recipients.errors %}
+                <div class="error-message">{{ form.recipients.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Сохранить рассылку
+                </button>
+                <a href="{% url 'customers:mailing_list' %}" class="cancel-link">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Основные стили */
+    .mailing-create-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .mailing-form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-header h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 24px;
+    }
+
+    .form-header p {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    /* Стили формы */
+    .styled-mailing-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #34495e;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper:after {
+        content: "▼";
+        font-size: 12px;
+        color: #7f8c8d;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .form-group select {
+        appearance: none;
+        padding-right: 30px;
+        width: 100%;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* Множественный выбор */
+    .form-group select[multiple] {
+        height: auto;
+        min-height: 120px;
+        padding: 10px;
+    }
+
+    .form-group select[multiple] option {
+        padding: 8px 10px;
+    }
+
+    .form-text {
+        color: #95a5a6;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    /* Кнопки */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+    }
+
+    .submit-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .cancel-link {
+        color: #7f8c8d;
+        text-decoration: none;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.3s;
+    }
+
+    .cancel-link:hover {
+        color: #3498db;
+        text-decoration: underline;
+    }
+
+    /* Ошибки */
+    .error-message {
+        color: #e74c3c;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    /* Иконки */
+    .fas, .far {
+        font-size: 14px;
+    }
+</style>
+
+<!-- Подключаем Font Awesome для иконок -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Подключаем Flatpickr для выбора даты -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/l10n/ru.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация datetime picker
+        flatpickr("#id_first_mailing, #id_end_mailing", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            locale: "ru",
+            minDate: "today"
+        });
+    });
+</script>
+{% endblock %}

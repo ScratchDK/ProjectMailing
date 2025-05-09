@@ -1,0 +1,287 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Изменить рассылку{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="mailing-edit-container">
+    <div class="mailing-edit-card">
+        <div class="mailing-header">
+            <h1><i class="fas fa-envelope-open-text"></i> Изменить рассылку</h1>
+            <p>Обновите параметры рассылки</p>
+        </div>
+
+        <form method="post" class="mailing-edit-form">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.first_mailing.id_for_label }}">
+                        <i class="far fa-calendar-alt"></i> {{ form.first_mailing.label }}
+                    </label>
+                    {{ form.first_mailing }}
+                    {% if form.first_mailing.errors %}
+                    <div class="error-message">{{ form.first_mailing.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.end_mailing.id_for_label }}">
+                        <i class="far fa-calendar-times"></i> {{ form.end_mailing.label }}
+                    </label>
+                    {{ form.end_mailing }}
+                    {% if form.end_mailing.errors %}
+                    <div class="error-message">{{ form.end_mailing.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">
+                    <i class="fas fa-info-circle"></i> {{ form.status.label }}
+                </label>
+                <div class="select-wrapper">
+                    {{ form.status }}
+                </div>
+                {% if form.status.errors %}
+                <div class="error-message">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.letter.id_for_label }}">
+                    <i class="fas fa-envelope"></i> {{ form.letter.label }}
+                </label>
+                <div class="select-wrapper">
+                    {{ form.letter }}
+                </div>
+                {% if form.letter.errors %}
+                <div class="error-message">{{ form.letter.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group recipients-group">
+                <label>
+                    <i class="fas fa-users"></i> {{ form.recipients.label }}
+                </label>
+                <div class="recipients-list">
+                    {{ form.recipients }}
+                </div>
+                {% if form.recipients.errors %}
+                <div class="error-message">{{ form.recipients.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+                <a href="{% url 'customers:mailing_list' %}" class="cancel-link">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Основные стили */
+    :root {
+        --primary-color: #4361ee;
+        --error-color: #ef233c;
+        --text-color: #2b2d42;
+        --light-gray: #f8f9fa;
+    }
+
+    .mailing-edit-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+        background-color: var(--light-gray);
+    }
+
+    .mailing-edit-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        width: 100%;
+        max-width: 700px;
+    }
+
+    /* Шапка формы */
+    .mailing-header {
+        margin-bottom: 30px;
+    }
+
+    .mailing-header h1 {
+        color: var(--text-color);
+        margin-bottom: 10px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mailing-header p {
+        color: #6c757d;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    /* Форма */
+    .mailing-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    /* Строка с датами */
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    /* Общие стили для полей */
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Стили для полей ввода */
+    .form-group input,
+    .form-group select {
+        padding: 12px 15px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        outline: none;
+    }
+
+    /* Стили для select */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper:after {
+        content: "▼";
+        font-size: 12px;
+        color: #7f8c8d;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .select-wrapper select {
+        appearance: none;
+        padding-right: 30px;
+        width: 100%;
+    }
+
+    /* Стили для чекбоксов получателей */
+    .recipients-group ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .recipients-group li {
+        margin-bottom: 5px;
+    }
+
+    .recipients-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+    .recipients-group input[type="checkbox"] {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Кнопки */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .submit-button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-button:hover {
+        background-color: #3a56d4;
+    }
+
+    .cancel-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.3s;
+    }
+
+    .cancel-link:hover {
+        color: var(--primary-color);
+    }
+
+    /* Сообщения об ошибках */
+    .error-message {
+        color: var(--error-color);
+        font-size: 13px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}

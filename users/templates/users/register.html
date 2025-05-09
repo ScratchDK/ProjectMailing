@@ -1,0 +1,146 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Регистрация профиля{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    <div class="registration-card">
+        <h1 class="registration-title">Регистрация</h1>
+
+        <form method="post" enctype="multipart/form-data" class="registration-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div class="error-message">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="submit-button">Зарегистрироваться</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Основные стили */
+    .registration-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f5f7fa;
+        padding: 20px;
+    }
+
+    .registration-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .registration-title {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-size: 28px;
+    }
+
+    /* Стили формы */
+    .registration-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-field label {
+        font-weight: 500;
+        color: #34495e;
+        font-size: 14px;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        padding: 12px 16px;
+        border: 1px solid #dfe6e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+
+    /* Кнопка */
+    .submit-button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+    .submit-button:hover {
+        background-color: #2980b9;
+    }
+
+    /* Сообщения */
+    .help-text {
+        color: #7f8c8d;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Ссылка на вход */
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .login-link a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

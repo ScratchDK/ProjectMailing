@@ -1,0 +1,151 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Новое письмо{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/letter_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-create">
+    <div class="form-wrapper">
+        <div class="form-container">
+            <h1 class="form-title">Новое письмо</h1>
+            <form method="post" enctype="multipart/form-data" class="styled-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    {{ form.topic.label_tag }}
+                    {{ form.topic }}
+                    {% if form.topic.errors %}
+                        <div class="error">{{ form.topic.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.content.label_tag }}
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="error">{{ form.content.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Добавьте другие поля формы по аналогии -->
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Сохранить письмо</button>
+                    <a href="{% url 'customers:mailing_list' %}" class="cancel-link">Назад к списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .content-create {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .form-container {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .styled-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: #4a90e2;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .error {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .submit-btn {
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #357ab8;
+    }
+
+    .cancel-link {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .cancel-link:hover {
+        color: #333;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Добро пожаловать{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <div class="welcome-card">
+        <div class="welcome-icon">
+            <div class="icon-circle">
+                <i class="fas fa-hand-peace"></i>
+            </div>
+        </div>
+        
+        <div class="welcome-content">
+            <h1>Добро пожаловать!</h1>
+            
+            <div class="welcome-message">
+                <p>Для доступа к системе войдите в свой аккаунт или зарегистрируйтесь, если у вас еще нет учетной записи.</p>
+            </div>
+            
+            <div class="welcome-actions">
+                <a href="{% url 'users:login' %}" class="action-button primary">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </a>
+                <a href="{% url 'users:register' %}" class="action-button secondary">
+                    <i class="fas fa-user-plus"></i> Регистрация
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Основные стили (сохраняем единый стиль) */
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #6c757d;
+        --text-color: #2b2d42;
+        --light-gray: #f8f9fa;
+    }
+    
+    body {
+        background-color: var(--light-gray);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .welcome-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+    }
+    
+    .welcome-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+    
+    /* Иконка */
+    .welcome-icon {
+        margin-bottom: 25px;
+    }
+    
+    .icon-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background-color: rgba(67, 97, 238, 0.1);
+        border-radius: 50%;
+    }
+    
+    .icon-circle i {
+        font-size: 36px;
+        color: var(--primary-color);
+    }
+    
+    /* Текстовое содержимое */
+    .welcome-content h1 {
+        color: var(--text-color);
+        margin-bottom: 20px;
+        font-size: 26px;
+    }
+    
+    .welcome-message {
+        color: #6c757d;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    
+    /* Кнопки */
+    .welcome-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .action-button.primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .action-button.primary:hover {
+        background-color: #3a56d4;
+        transform: translateY(-2px);
+    }
+    
+    .action-button.secondary {
+        background-color: white;
+        color: var(--secondary-color);
+        border: 1px solid #dee2e6;
+    }
+    
+    .action-button.secondary:hover {
+        background-color: #f8f9fa;
+        border-color: #ced4da;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 576px) {
+        .welcome-card {
+            padding: 30px 20px;
+        }
+        
+        .welcome-content h1 {
+            font-size: 22px;
+        }
+        
+        .welcome-message {
+            font-size: 15px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Создание рассылки{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/mailing_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-create">
+    <div class="form-container">
+        <h1>Список рассылок</h1>
+        <div class="table-responsive"> <!-- Обертка для адаптивности -->
+            <table class="mailing-table">
+                <thead>
+                    <tr>
+                        <th>Ф.И.О.</th>
+                        <th>Электронная почта</th>
+                        <th>Комментарии</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recipients %}
+                        <tr>
+                            <td data-label="Ф.И.О.">{{ item.full_name }}</td>
+                            <td data-label="Электронная почта">{{ item.email }}</td>
+                            <td data-label="Комментарии">{{ item.comment|truncatechars:30 }}</td>
+                            <td data-label="Действия">
+                                <a href="{% url 'customers:mailing_detail' item.id %}" class="detail-link">Подробнее →</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-message">Нет получателей для отображения.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

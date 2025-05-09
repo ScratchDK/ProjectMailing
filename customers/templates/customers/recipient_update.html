@@ -1,0 +1,22 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %} Блог {% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block content %}
+    <div class="content-post">
+        <div class="post-card">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Отправить уведомление</button>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}
