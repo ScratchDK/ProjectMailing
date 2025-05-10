@@ -161,9 +161,91 @@
         transform: translateY(-2px);
     }
 
-    /* Форма удаления */
-    .delete-form {
-        display: inline;
+    /* Стили модального окна */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 25px;
+        border-radius: 8px;
+        width: 450px;
+        max-width: 90%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--text-color);
+    }
+
+    .close-modal {
+        color: #aaa;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-modal:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        margin-bottom: 20px;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .modal-btn-delete {
+        background-color: var(--danger-color);
+        color: white;
+        border: none;
+    }
+
+    .modal-btn-delete:hover {
+        background-color: #d11a2a;
+    }
+
+    .modal-btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .modal-btn-cancel:hover {
+        background-color: #5a6268;
     }
 </style>
 {% endblock %}
@@ -234,14 +316,50 @@
                     <i class="fas fa-edit"></i> Изменить
                 </a>
 
-                <form method="post" action="{#}" class="delete-form" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="action-button btn-delete" onclick="return confirm('Вы уверены, что хотите удалить эту рассылку?');">
-                        <i class="fas fa-trash-alt"></i> Удалить
-                    </button>
-                </form>
+                <button class="action-button btn-delete" onclick="openModal('deleteMailingModal')">
+                    <i class="fas fa-trash-alt"></i> Удалить
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div id="deleteMailingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Подтверждение удаления</h2>
+            <span class="close-modal" onclick="closeModal('deleteMailingModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Вы уверены, что хотите удалить рассылку "{{ mailing.letter.topic }}"?</p>
+        </div>
+        <div class="modal-actions">
+            <form method="post" action="{% url 'customers:mailing_delete' mailing.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="modal-btn modal-btn-delete">Да, удалить</button>
+            </form>
+            <button class="modal-btn modal-btn-cancel" onclick="closeModal('deleteMailingModal')">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Функции для работы с модальными окнами
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Закрытие модального окна при клике вне его
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+
 {% endblock %}

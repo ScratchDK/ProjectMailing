@@ -9,7 +9,7 @@ from .models import Mailing, Letter, Recipient, Attempt
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 # from django.core.mail import send_mail
-# from django.contrib import messages
+from django.contrib import messages
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -17,17 +17,35 @@ class MailingListView(LoginRequiredMixin, ListView):
     template_name = 'customers/mailing_list.html'
     context_object_name = 'mailing'
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.groups.filter(name='Менеджеры').exists():
+            return queryset
+        return queryset.filter(owner=self.request.user)
+
 
 class LetterListView(LoginRequiredMixin, ListView):
     model = Letter
     template_name = 'customers/letter_list.html'
     context_object_name = 'letters'
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.groups.filter(name='Менеджеры').exists():
+            return queryset
+        return queryset.filter(owner=self.request.user)
+
 
 class RecipientListView(LoginRequiredMixin, ListView):
     model = Recipient
     template_name = 'customers/recipient_list.html'
     context_object_name = 'recipients'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.groups.filter(name='Менеджеры').exists():
+            return queryset
+        return queryset.filter(owner=self.request.user)
 
 
 class AttemptListView(LoginRequiredMixin, ListView):
@@ -170,7 +188,7 @@ class LetterUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = 'id'
     form_class = LetterForm
     template_name = "customers/letter_update.html"
-    success_url = reverse_lazy('customers:mailing_list')
+    success_url = reverse_lazy('customers:letter_list')
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -187,7 +205,7 @@ class LetterUpdateView(LoginRequiredMixin, UpdateView):
         if obj.owner == request.user or is_manager:
             return super().dispatch(request, *args, **kwargs)
         else:
-            return redirect('customers:mailing_list')
+            return redirect('customers:letter_list')
 
 
 class RecipientUpdateView(LoginRequiredMixin, UpdateView):
@@ -195,7 +213,7 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = 'id'
     form_class = RecipientForm
     template_name = "customers/recipient_update.html"
-    success_url = reverse_lazy('customers:mailing_list')
+    success_url = reverse_lazy('customers:recipient_list')
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -210,14 +228,14 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
         is_manager = request.user.groups.filter(name='Менеджеры').exists()
 
         if obj.owner != request.user and not is_manager:
-            return redirect('customers:mailing_list')
+            return redirect('customers:recipient_list')
         return super().dispatch(request, *args, **kwargs)
 
 
 class LetterDeleteView(LoginRequiredMixin, DeleteView):
     model = Letter
     pk_url_kwarg = 'id'
-    template_name = 'customers/delete_product.html'
+    template_name = 'customers/letter_delete.html'
     success_url = reverse_lazy('customers:letter_list')
 
     def get_queryset(self):
@@ -230,4 +248,42 @@ class LetterDeleteView(LoginRequiredMixin, DeleteView):
 
         if obj.owner != request.user and not is_manager:
             return redirect('customers:letter_list')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
+    model = Mailing
+    pk_url_kwarg = 'id'
+    template_name = 'customers/mailing_delete.html'
+    success_url = reverse_lazy('customers:mailing_list')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.model.objects.filter(pk=kwargs['id']).first()
+
+        is_manager = request.user.groups.filter(name='Менеджеры').exists()
+
+        if obj.owner != request.user and not is_manager:
+            return redirect('customers:mailing_list')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class RecipientDeleteView(LoginRequiredMixin, DeleteView):
+    model = Recipient
+    pk_url_kwarg = 'id'
+    template_name = 'customers/recipient_delete.html'
+    success_url = reverse_lazy('customers:recipient_list')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.model.objects.filter(pk=kwargs['id']).first()
+
+        is_manager = request.user.groups.filter(name='Менеджеры').exists()
+
+        if obj.owner != request.user and not is_manager:
+            return redirect('customers:recipient_list')
         return super().dispatch(request, *args, **kwargs)

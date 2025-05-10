@@ -6,6 +6,106 @@
 
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/mailing_list.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <style>
+        /* Стили для иконок действий */
+        .action-icons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .action-icon {
+            color: #4a6fa5;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            padding: 6px;
+            border: None;
+            border-radius: 4px;
+        }
+
+        .delete-icon {
+            padding-top: 9px;
+        }
+
+        .action-icon:hover {
+            background-color: #f0f4f8;
+            transform: scale(1.1);
+        }
+
+        .edit-icon:hover {
+            color: #2c7d44;
+        }
+
+        .delete-icon:hover {
+            color: #dc3545;
+        }
+
+        /* Стили модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .action-icons {
+                justify-content: flex-start;
+            }
+
+            .modal-content {
+                margin: 30% auto;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +129,14 @@
                             <td data-label="Электронная почта">{{ item.email }}</td>
                             <td data-label="Комментарии">{{ item.comment|truncatechars:30 }}</td>
                             <td data-label="Действия">
-                                <a href="{% url 'customers:mailing_detail' item.id %}" class="detail-link">Подробнее →</a>
+                                <div class="action-icons">
+                                    <a href="{% url 'customers:recipient_update' item.id %}" class="action-icon edit-icon" title="Изменить">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <button class="action-icon delete-icon" title="Удалить" onclick="openModal('deleteModal{{ item.id }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     {% empty %}
@@ -42,4 +149,44 @@
         </div>
     </div>
 </div>
+
+<!-- Модальные окна для каждого получателя -->
+{% for item in recipients %}
+<div id="deleteModal{{ item.id }}" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Подтверждение удаления</h2>
+            <span class="close" onclick="closeModal('deleteModal{{ item.id }}')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Вы уверены, что хотите удалить получателя "{{ item.full_name }}"?</p>
+            <div class="modal-actions">
+                <form action="{% url 'customers:recipient_delete' item.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="modal-btn-delete">Да, удалить</button>
+                </form>
+                <button class="btn-cancel" onclick="closeModal('deleteModal{{ item.id }}')">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    // Функции для работы с модальными окнами
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Закрытие модального окна при клике вне его
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}
