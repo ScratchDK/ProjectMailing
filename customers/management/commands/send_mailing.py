@@ -54,9 +54,13 @@ class Command(BaseCommand):
                     mailing=mailing
                 )
 
+                print("Рассылка успешно отправлена!")
+
         except smtplib.SMTPResponseException as e:
             Attempt.objects.create(
                 status='Unsuccessful',
                 server_response=f"{e.smtp_code} {e.smtp_error}",
                 mailing=mailing
             )
+
+            print("Не удалось отправить рассылку!!")

@@ -94,6 +94,9 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
                     mailing=mailing
                 )
 
+                mailing.status = "Completed"
+                mailing.save()
+
         except smtplib.SMTPResponseException as e:
             Attempt.objects.create(
                 status='Unsuccessful',
