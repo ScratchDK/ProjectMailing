@@ -1,0 +1,116 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Список пользователей{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/mailing_list.css' %}">
+    <style>
+        /* Дополнительные стили для статусов */
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .email-text {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        button[type="submit"] {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        button[name="action"][value="deactivate"] {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        button[name="action"][value="deactivate"]:hover {
+            background-color: #ff5252;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button[name="action"][value="activate"] {
+            background-color: #51cf66;
+            color: white;
+        }
+
+        button[name="action"][value="activate"]:hover {
+            background-color: #40c057;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Для мобильной адаптации */
+        @media (max-width: 768px) {
+            button[type="submit"] {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content-create">
+    <div class="form-container">
+        <h1>Список пользователей</h1>
+        <div class="table-responsive">
+            <table class="mailing-table">
+                <thead>
+                    <tr>
+                        <th>Имя пользователя</th>
+                        <th>Email</th>
+                        <th>Активен</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td data-label="Имя пользователя">
+                                {{ user.username }}
+                            </td>
+                            <td data-label="Email" class="email-text" title="{{ user.email }}">
+                                {{ user.email }}
+                            </td>
+                            <td data-label="Активен">
+                                <span class="status-badge status-{% if user.is_active %}active{% else %}inactive{% endif %}">
+                                    {% if user.is_active %}Да{% else %}Нет{% endif %}
+                                </span>
+                            </td>
+                            <td data-label="Действия">
+                                <form method="post" action="{% url 'users:users_list' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.pk }}">
+                                    {% if user.is_active %}
+                                        <button type="submit" name="action" value="deactivate">Заблокировать</button>
+                                    {% else %}
+                                        <button type="submit" name="action" value="activate">Разблокировать</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-message">Нет пользователей для отображения.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.shortcuts import redirect, render, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.crypto import get_random_string
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 
 import config.settings as settings
 
@@ -85,3 +85,25 @@ class ProfileUpdateView(UpdateView):
     form_class = ProfileUpdateForm
     template_name = "users/update_profile.html"
     success_url = reverse_lazy('catalog:home')
+
+
+class UserListView(ListView):
+    model = CustomUser
+    template_name = 'users/users_list.html'
+    context_object_name = 'users'
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        user_id = request.POST.get('user_id')
+
+        if action == "deactivate":
+            user = CustomUser.objects.get(pk=user_id)
+            user.is_active = False
+            user.save()
+
+        elif action == "activate":
+            user = CustomUser.objects.get(pk=user_id)
+            user.is_active = True
+            user.save()
+
+        return redirect("users:users_list")

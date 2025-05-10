@@ -140,7 +140,7 @@ class LetterView(LoginRequiredMixin, CreateView):
     model = Letter
     fields = ['topic', 'content']
     template_name = 'customers/letter.html'
-    success_url = reverse_lazy('customers:mailing_list')
+    success_url = reverse_lazy('customers:letter_list')
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -151,7 +151,7 @@ class RecipientView(LoginRequiredMixin, CreateView):
     model = Recipient
     fields = ['email', 'full_name', 'comment']
     template_name = 'customers/recipient.html'
-    success_url = reverse_lazy('customers:mailing_list')
+    success_url = reverse_lazy('customers:recipient_list')
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
