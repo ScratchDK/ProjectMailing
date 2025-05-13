@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'customers',
     'users',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -91,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -120,3 +121,32 @@ LOGIN_REDIRECT_URL = 'customers:mailing_list'
 LOGOUT_REDIRECT_URL = 'customers:mailing_list'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',  # путь к файлу логов
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        '': {  # корневой логгер
+            'handlers': ['console', 'file'],
+            'level': 'INFO',  # уровень INFO и выше (DEBUG, WARNING, ERROR, CRITICAL)
+            'propagate': True,
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}

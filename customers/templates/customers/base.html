@@ -33,13 +33,6 @@
                 </div>
             </div>
             <div class="dropdown">
-                <a href="#" class="dropbtn">Получатели</a>
-                <div class="dropdown-content">
-                    <a href="{% url 'customers:recipient' %}">Добавить</a>
-                    <a href="{% url 'customers:recipient_list' %}">Список</a>
-                </div>
-            </div>
-            <div class="dropdown">
                 {% if user.is_authenticated %}
                     <a href="#" class="dropbtn">{{ user.email }}</a>
                 {% else %}
@@ -52,6 +45,13 @@
                     <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: none;">
                         {% csrf_token %}
                     </form>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="dropbtn">Получатели</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'customers:recipient' %}">Добавить</a>
+                    <a href="{% url 'customers:recipient_list' %}">Список</a>
                 </div>
             </div>
             {% if perms.users.manage_users %}

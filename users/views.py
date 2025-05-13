@@ -92,6 +92,9 @@ class UserListView(ListView):
     template_name = 'users/users_list.html'
     context_object_name = 'users'
 
+    def get_queryset(self):
+        return CustomUser.objects.filter(is_superuser=False)
+
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
         user_id = request.POST.get('user_id')

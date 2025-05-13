@@ -9,7 +9,9 @@ from .models import Mailing, Letter, Recipient, Attempt
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 # from django.core.mail import send_mail
-from django.contrib import messages
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.core.cache import cache
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -18,7 +20,12 @@ class MailingListView(LoginRequiredMixin, ListView):
     context_object_name = 'mailing'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+
+        queryset = cache.get('mailing_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('mailing_queryset', queryset, 60 * 15)
+
         if self.request.user.groups.filter(name='Менеджеры').exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -30,7 +37,12 @@ class LetterListView(LoginRequiredMixin, ListView):
     context_object_name = 'letters'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+
+        queryset = cache.get('letters_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('letters_queryset', queryset, 60 * 15)
+
         if self.request.user.groups.filter(name='Менеджеры').exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -42,7 +54,12 @@ class RecipientListView(LoginRequiredMixin, ListView):
     context_object_name = 'recipients'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+
+        queryset = cache.get('recipients_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('recipients_queryset', queryset, 60 * 15)
+
         if self.request.user.groups.filter(name='Менеджеры').exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -52,6 +69,10 @@ class AttemptListView(LoginRequiredMixin, ListView):
     model = Attempt
     template_name = 'customers/attempt_list.html'
     context_object_name = 'attempts'
+
+    # Выводим только связанные с текущим пользователем рассылки
+    def get_queryset(self):
+        return super().get_queryset().filter(mailing__owner=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
