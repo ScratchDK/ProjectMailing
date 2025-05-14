@@ -5,8 +5,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def send_mailing(mailing):
-    logger.info(f"Starting to send mailing {mailing.id} to {mailing.recipients.count()} recipients")
+def send_mailing(mailing, now):
+    logger.info(f"Время [{now}]], начала отправки рассылки №{mailing.id} по {mailing.recipients.count()} получателям.")
 
     subject = mailing.letter.topic
     message = mailing.letter.content
