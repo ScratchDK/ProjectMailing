@@ -1,6 +1,7 @@
 import sys
 import time
 import logging
+from datetime import timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -27,27 +28,33 @@ def scheduled_check_mailings():
         mailings = Mailing.objects.filter(
             first_mailing__lte=now,
             end_mailing__gte=now,
-            status='Created'
+            status__in=['Created', 'Launched']
         )
 
         logger.info(f"Found {mailings.count()} mailings to process at {now}")
 
+        scheduler = get_scheduler()
+
         for mailing in mailings:
-            mailing.status = 'Launched'
-            mailing.save()
+            if mailing.status == "Created":
+                mailing.status = 'Launched'
+                mailing.save()
+
+            # Отправляем рассылку сразу при первом запуске
             send_mailing(mailing)
 
-            # Получаем активный scheduler
-            scheduler = get_scheduler()
-            if scheduler is not None:
+            # Планируем следующую отправку через 24 часа, если не достигнут end_mailing
+            next_run = now + timedelta(hours=24)
+            if next_run < mailing.end_mailing:
                 scheduler.add_job(
-                    check_mailing_completion,
+                    send_mailing,
                     'date',
-                    run_date=mailing.end_mailing,
-                    args=[mailing.id],
-                    id=f'mailing_complete_{mailing.id}',
+                    run_date=next_run,
+                    args=[mailing],
+                    id=f'mailing_{mailing.id}_{next_run.timestamp()}',
                     replace_existing=True
                 )
+                logger.info(f"Scheduled next mailing for {mailing.id} at {next_run}")
 
     except Exception as e:
         logger.error(f"Error in scheduled_check_mailings: {e}")
@@ -120,7 +127,7 @@ class Command(BaseCommand):
             # Проверка рассылок каждые 24 часа
             scheduler.add_job(
                 scheduled_check_mailings,
-                trigger=CronTrigger(hour="*/12"),
+                trigger=CronTrigger(hour="*/24"),
                 id="check_mailings",
                 max_instances=1,
                 replace_existing=True,
