@@ -1,0 +1,70 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Список писем{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/mailing_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-create">
+    <div class="form-container">
+        <h1>Список писем</h1>
+        <div class="table-responsive">
+            <table class="mailing-table">
+                <thead>
+                    <tr>
+                        <th>Тема письма</th>
+                        <th>Содержание</th>
+                        <th>Отправитель</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in letters %}
+                        <tr>
+                            <td data-label="Тема письма<">{{ item.topic|truncatechars:30 }}</td>
+                            <td data-label="Содержание">{{ item.content|truncatechars:50 }}</td>
+                            <td data-label="Отправитель">{{ item.owner }}</td>
+                            <td data-label="Действия">
+                                <a href="{% url 'customers:letter_update' item.id %}"><i class="bi bi-pencil-square"></i></a>
+                                <a href="#"><button class="btn-delete" data-toggle="modal" data-target="#deleteModal{{ item.id }}"><i class="bi bi-trash"></i></button></a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-message">Нет писем для отображения.</td>
+                        </tr>
+
+                        <!-- Модальное окно для подтверждения удаления -->
+                        <div id="deleteModal{{ item.id }}" class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h2>Подтверждение удаления</h2>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Вы уверены, что хотите удалить этот продукт?</p>
+                                        <div class="modal-actions">
+                                            <form action="{% url 'customers:delete_letter' item.id %}" method="POST" id="delete-post-form-{{ item.id }}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="modal-btn-delete">Да, удалить</button>
+                                            </form>
+                                            <button class="btn-cancel" data-dismiss="modal">Отмена</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

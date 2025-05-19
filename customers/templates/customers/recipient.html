@@ -1,0 +1,201 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Добавление нового получателя{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="recipient-form-container">
+    <div class="recipient-form-card">
+        <div class="form-header">
+            <h1><i class="fas fa-user-plus"></i> Новый получатель</h1>
+            <p>Заполните данные получателя рассылки</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="styled-recipient-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {% if field.name == 'email' %}<i class="fas fa-envelope"></i>
+                    {% elif field.name == 'first_name' %}<i class="fas fa-user"></i>
+                    {% elif field.name == 'last_name' %}<i class="fas fa-user"></i>
+                    {% elif field.name == 'comment' %}<i class="fas fa-comment"></i>
+                    {% else %}<i class="fas fa-pencil-alt"></i>
+                    {% endif %}
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div class="error-message">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Сохранить получателя
+                </button>
+                <a href="{% url 'customers:recipient_list' %}" class="cancel-link">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Основные стили */
+    .recipient-form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .recipient-form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .form-header h1 {
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .form-header p {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    /* Стили формы */
+    .styled-recipient-form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #34495e;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        outline: none;
+    }
+
+    .form-group textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: #95a5a6;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Кнопки */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 25px;
+    }
+
+    .submit-btn {
+        background-color: #4361ee;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        background-color: #3a56d4;
+    }
+
+    .cancel-link {
+        color: #7f8c8d;
+        text-decoration: none;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.3s;
+    }
+
+    .cancel-link:hover {
+        color: #4361ee;
+        text-decoration: underline;
+    }
+
+    /* Ошибки */
+    .error-message {
+        color: #ef233c;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    /* Иконки */
+    .fas {
+        font-size: 14px;
+        width: 16px;
+    }
+</style>
+{% endblock %}

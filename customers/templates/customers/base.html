@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block style %}{% endblock %}
+</head>
+<body>
+    <header>
+        <img src="{% static 'img/background.jpg' %}" alt="Фон" class="header-background">
+        <h1>Мой сайт</h1>
+    </header>
+    <nav>
+        {% if user.is_authenticated %}
+            <div class="dropdown">
+                <a href="#" class="dropbtn">Рассылки</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'customers:mailing_create' %}">Добавить</a>
+                    <a href="{% url 'customers:mailing_list' %}">Список</a>
+                    <a href="{% url 'customers:statistics' %}">Статистика</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="dropbtn">Письма</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'customers:letter' %}">Добавить</a>
+                    <a href="{% url 'customers:letter_list' %}">Список</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                {% if user.is_authenticated %}
+                    <a href="#" class="dropbtn">{{ user.email }}</a>
+                {% else %}
+                    <a href="#" class="dropbtn">Аккаунт</a>
+                {% endif %}
+                <div class="dropdown-content">
+                    <a href="{% url 'users:update_profile' user.id %}">Изменить</a>
+                    <a href="#" onclick="document.getElementById('logout-form').submit();" class="btn-exit">Выйти</a>
+
+                    <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="dropbtn">Получатели</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'customers:recipient' %}">Добавить</a>
+                    <a href="{% url 'customers:recipient_list' %}">Список</a>
+                </div>
+            </div>
+            {% if perms.users.manage_users %}
+                <div class="dropdown">
+                    <a href="#" class="dropbtn">Пользователи</a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'users:users_list' %}">Список</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Мой сайт. Все права защищены.</p>
+    </footer>
+</body>
+</html>

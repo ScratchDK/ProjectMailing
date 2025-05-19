@@ -1,0 +1,159 @@
+import sys
+import time
+import logging
+from datetime import timedelta
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from django_apscheduler.jobstores import DjangoJobStore
+from django_apscheduler.models import DjangoJobExecution
+from django_apscheduler import util
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+
+from customers.models import Mailing
+from customers.services import send_mailing
+
+from django.db import connection
+
+
+logger = logging.getLogger(__name__)
+
+
+def scheduled_check_mailings():
+    """Основная функция проверки рассылок"""
+
+    try:
+        now = timezone.localtime()
+        mailings = Mailing.objects.filter(
+            first_mailing__lte=now,
+            end_mailing__gte=now,
+            status__in=['Created', 'Launched']
+        )
+
+        logger.info(f"Found {mailings.count()} mailings to process at {now}")
+
+        scheduler = get_scheduler()
+
+        for mailing in mailings:
+            if mailing.status == "Created":
+                mailing.status = 'Launched'
+                mailing.save()
+
+            # Отправляем рассылку сразу при первом запуске
+            send_mailing(mailing, now)
+
+            # Планируем следующую отправку через 24 часа, если не достигнут end_mailing
+            next_run = now + timedelta(hours=24)
+            if next_run < mailing.end_mailing:
+                scheduler.add_job(
+                    send_mailing,                                               # Функция обработчик задачи
+                    'date',
+                    run_date=next_run,                                          # Дата запуска
+                    args=[mailing, next_run],                                   # Передаваемые аргументы
+                    id=f'mailing_{mailing.id}_{next_run.timestamp()}',
+                    replace_existing=True
+                )
+                logger.info(f"Scheduled next mailing for {mailing.id} at {next_run}")
+
+    except Exception as e:
+        logger.error(f"Error in scheduled_check_mailings: {e}")
+
+
+def check_mailing_completion(mailing_id):
+
+    now = timezone.localtime()
+
+    try:
+        from customers.models import Mailing
+        mailing = Mailing.objects.get(id=mailing_id)
+        if mailing.status == 'Launched' and mailing.end_mailing >= now:
+            mailing.status = 'Completed'
+            mailing.save()
+    except Exception as e:
+        logger.error(f"Error completing mailing {mailing_id}: {e}")
+
+
+@util.close_old_connections
+def delete_old_job_executions(max_age=604_800):
+    """Очистка старых задач"""
+    try:
+        DjangoJobExecution.objects.delete_old_job_executions(max_age)
+    except Exception as e:
+        logger.error(f"Error cleaning old jobs: {e}")
+
+
+# Глобальная переменная для планировщика
+_scheduler = None
+
+
+def get_scheduler():
+    """Получение экземпляра планировщика"""
+    global _scheduler
+    if _scheduler is None or not _scheduler.running:
+        _scheduler = BackgroundScheduler()
+        _scheduler.add_jobstore(DjangoJobStore(), "default")
+        _scheduler.start()
+    return _scheduler
+
+
+class Command(BaseCommand):
+    help = "Starts the APScheduler."
+
+    def handle(self, *args, **options):
+
+        # Пропускаем запуск при выполнении миграций
+        if 'makemigrations' in sys.argv or 'migrate' in sys.argv:
+            return
+        ##########################################################
+
+        max_retries = 5
+        retry_delay = 2
+
+        for i in range(max_retries):
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT 1")
+                break
+            except Exception:
+                if i == max_retries - 1:
+                    self.stdout.write(self.style.ERROR("Database not available"))
+                    return
+                time.sleep(retry_delay)
+
+        try:
+            scheduler = get_scheduler()
+
+            # Проверка рассылок каждые 2 минуты
+            scheduler.add_job(
+                scheduled_check_mailings,
+                trigger=CronTrigger(minute="*/2"),
+                id="check_mailings",
+                max_instances=1,
+                replace_existing=True,
+            )
+
+            # Очистка старых задач раз в неделю
+            scheduler.add_job(
+                delete_old_job_executions,
+                trigger=CronTrigger(day_of_week="mon", hour="00", minute="00"),
+                id="delete_old_job_executions",
+                max_instances=1,
+                replace_existing=True,
+            )
+
+            self.stdout.write(self.style.SUCCESS("Scheduler started successfully!"))
+
+            # Бесконечный цикл для поддержания работы планировщика
+            while True:
+                time.sleep(1)
+
+        except KeyboardInterrupt:
+            if scheduler.running:
+                scheduler.shutdown()
+            self.stdout.write(self.style.SUCCESS("Scheduler stopped gracefully"))
+        except Exception as e:
+            logger.error(f"Scheduler failed: {e}")
+            if '_scheduler' in globals() and _scheduler.running:
+                _scheduler.shutdown()
+            self.stdout.write(self.style.ERROR(f"Scheduler error: {e}"))

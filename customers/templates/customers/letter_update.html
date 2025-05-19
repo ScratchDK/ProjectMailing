@@ -1,0 +1,172 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Изменить письмо{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    /* Основные стили */
+    :root {
+        --primary-color: #4361ee;
+        --text-color: #2b2d42;
+        --light-gray: #f8f9fa;
+    }
+
+    .letter-edit-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 30px 20px;
+        background-color: var(--light-gray);
+    }
+
+    .letter-edit-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .letter-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .letter-header h1 {
+        color: var(--text-color);
+        margin-bottom: 10px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    /* Форма */
+    .letter-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        outline: none;
+    }
+
+    .form-group textarea {
+        min-height: 200px;
+        resize: vertical;
+    }
+
+    /* Кнопки */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #3a56d4;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="letter-edit-container">
+    <div class="letter-edit-card">
+        <div class="letter-header">
+            <h1><i class="fas fa-envelope"></i> Изменить письмо</h1>
+        </div>
+
+        <form method="post" class="letter-edit-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_topic"><i class="fas fa-heading"></i> {{ form.topic.label }}</label>
+                {{ form.topic }}
+                {% if form.topic.errors %}
+                <div class="error-message">{{ form.topic.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_content"><i class="fas fa-align-left"></i> {{ form.content.label }}</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                <div class="error-message">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <a href="{% url 'customers:letter_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

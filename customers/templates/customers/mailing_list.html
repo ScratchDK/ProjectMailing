@@ -1,0 +1,49 @@
+{% extends 'customers/base.html' %}
+
+{% load static %}
+
+{% block title %}Создание рассылки{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/mailing_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-create">
+    <div class="form-container">
+        <h1>Список рассылок</h1>
+        <div class="table-responsive"> <!-- Обертка для адаптивности -->
+            <table class="mailing-table">
+                <thead>
+                    <tr>
+                        <th>Начало рассылки</th>
+                        <th>Окончание рассылки</th>
+                        <th>Статус</th>
+                        <th>Тема письма</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in mailing %}
+                        <tr>
+                            <td data-label="Начало">{{ item.first_mailing|date:"d.m.Y H:i" }}</td>
+                            <td data-label="Окончание">{{ item.end_mailing|date:"d.m.Y H:i" }}</td>
+                            <td data-label="Статус">
+                                <span class="status-badge status-{{ item.status|lower }}">{{ item.status }}</span>
+                            </td>
+                            <td data-label="Тема">{{ item.letter.topic|truncatechars:30 }}</td>
+                            <td data-label="Действия">
+                                <a href="{% url 'customers:mailing_detail' item.id %}" class="detail-link">Подробнее →</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-message">Нет рассылок для отображения.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
